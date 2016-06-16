@@ -28,7 +28,7 @@ namespace General_Desktop_Timer
         int counter;
         bool stopwatchCheck;
         string agentName = Environment.UserName;
-        string dskPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        string dskPath = "G:\\Communicator Ops\\Population Health\\Pop Process\\Time Tracking\\User Data";
         private System.Windows.Forms.ContextMenu contextMenu1;
         private System.Windows.Forms.MenuItem menuItem1;
         bool pausedFlag;
@@ -94,7 +94,7 @@ namespace General_Desktop_Timer
 
                     foreach (var data in TimerData)
                     {
-                        file.WriteLine(string.Join(",", data.agentID, data.agentStatus, data.statusTime, data.startTime, data.currentDate));
+                        file.WriteLine(string.Join(",", data.agentID, data.agentStatus, data.statusTime, data.startTime, data.currentDate, data.hydraTask, data.clientname, data.publishdate, data.notes));
                     }
                     file.Close();
                     notifyIcon1.Icon = null;
@@ -106,10 +106,10 @@ namespace General_Desktop_Timer
             {
                 using (var file = new StreamWriter(dskPath +"\\"+ agentName + ".csv", true, Encoding.UTF8))
                 {
-                    file.WriteLine(string.Join(",", "Agent ID", "Agent Status", "Status Time", "Start Time", "Current Date"));
+                    file.WriteLine(string.Join(",", "Agent ID", "Agent Status", "Status Time", "Start Time", "Current Date", "hydra task number", "Client Name", "Publish Date", "Notes"));
                     foreach (var data in TimerData)
                     {
-                        file.WriteLine(string.Join(",", data.agentID, data.agentStatus, data.statusTime, data.startTime, data.currentDate));
+                        file.WriteLine(string.Join(",", data.agentID, data.agentStatus, data.statusTime, data.startTime, data.currentDate, data.hydraTask, data.clientname, data.publishdate, data.notes));
                     }
                     file.Close();
                     notifyIcon1.Icon = null;
@@ -141,96 +141,106 @@ namespace General_Desktop_Timer
         //start the main work timer
         private void button1_Click(object sender, EventArgs e)
         {
-            stopwatchCheck = actualTimer.IsRunning;
-
-            if (pausedFlag == true)
-            {
-                notifyIcon1.ShowBalloonTip(500, "Timer Paused", "Please Resume Your Current Session Before Changing Status", ToolTipIcon.Info);
-                
-            }
-
-            else {
-                //we need a check here to understand if the timer is actually running and if we need to write anything, or if we can just start the timer
-                if (stopwatchCheck == true)
+            
+                if
+                    (StatusNamecomboBox1.SelectedItem == null)
                 {
-                    actualTimer.Stop();
-                    TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d") });
-                    actualTimer.Reset();
-                    statusChecktime.Stop();
-                    counter = 0;
+                    notifyIcon1.ShowBalloonTip(500, "No Status Selected", "Please Enter a Status", ToolTipIcon.Info);
+                }
+                else
+                {
+                stopwatchCheck = actualTimer.IsRunning;
+
+                if (pausedFlag == true)
+                {
+                    notifyIcon1.ShowBalloonTip(500, "Timer Paused", "Please Resume Your Current Session Before Changing Status", ToolTipIcon.Info);
+
                 }
 
-                statusChecktime.Start();
-                actualTimer.Start();
-                statusName = "Work Time";
-                notifyIcon1.ShowBalloonTip(500, "Status Change", "You are now in Work Time status", ToolTipIcon.Info);
+                else
+                {
+                    //we need a check here to understand if the timer is actually running and if we need to write anything, or if we can just start the timer
+                    if (stopwatchCheck == true)
+                    {
+                        actualTimer.Stop();
+                        TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d"), hydraTask = HydratasktextBox.Text.ToString(), clientname = clientnametextBox3.Text.ToString(), publishdate = publishdatetextBox4.Text.ToString(), notes = notestextBox5.Text.ToString() });
+                        actualTimer.Reset();
+                        statusChecktime.Stop();
+                        counter = 0;
+                    }
 
-            } 
+                    statusChecktime.Start();
+                    actualTimer.Start();
+                    statusName = StatusNamecomboBox1.SelectedItem.ToString();
+                    notifyIcon1.ShowBalloonTip(500, "Status Change", "You are now in "+statusName+" status", ToolTipIcon.Info);
+                }
+
+            }
         }
 
 
 
         //start the pre-work timer
-        private void button2_Click(object sender, EventArgs e)
-        {
-            stopwatchCheck = actualTimer.IsRunning;
+        //private void button2_Click(object sender, EventArgs e)
+        //{
+        //    stopwatchCheck = actualTimer.IsRunning;
 
-            if (pausedFlag == true)
-            {
-                notifyIcon1.ShowBalloonTip(500, "Timer Paused", "Please Resume Your Current Session Before Changing Status", ToolTipIcon.Info);
+        //    if (pausedFlag == true)
+        //    {
+        //        notifyIcon1.ShowBalloonTip(500, "Timer Paused", "Please Resume Your Current Session Before Changing Status", ToolTipIcon.Info);
                 
-            }
+        //    }
 
-            else {
+        //    else {
 
-                //we need a check here to understand if the timer is actually running and if we need to write anything, or if we can just start the timer
-                if (stopwatchCheck == true)
-                {
-                    actualTimer.Stop();
-                    TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d") });
-                    actualTimer.Reset();
-                    statusChecktime.Stop();
-                    counter = 0;
-                }
+        //        //we need a check here to understand if the timer is actually running and if we need to write anything, or if we can just start the timer
+        //        if (stopwatchCheck == true)
+        //        {
+        //            actualTimer.Stop();
+        //            TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d") });
+        //            actualTimer.Reset();
+        //            statusChecktime.Stop();
+        //            counter = 0;
+        //        }
 
-                statusChecktime.Start();
-                actualTimer.Start();
-                statusName = "Pre-Work";
-                notifyIcon1.ShowBalloonTip(500, "Status Change", "You are now in Pre-Work status", ToolTipIcon.Info);
-            }
-        }
+        //        statusChecktime.Start();
+        //        actualTimer.Start();
+        //        statusName = "Pre-Work";
+        //        notifyIcon1.ShowBalloonTip(500, "Status Change", "You are now in Pre-Work status", ToolTipIcon.Info);
+        //    }
+        //}
 
 
-        //start the post-work timer
-        private void button3_Click(object sender, EventArgs e)
-        {
-            stopwatchCheck = actualTimer.IsRunning;
+        ////start the post-work timer
+        //private void button3_Click(object sender, EventArgs e)
+        //{
+        //    stopwatchCheck = actualTimer.IsRunning;
 
-            if (pausedFlag == true)
-            {
-                notifyIcon1.ShowBalloonTip(500, "Timer Paused", "Please Resume Your Current Session Before Changing Status", ToolTipIcon.Info);
+        //    if (pausedFlag == true)
+        //    {
+        //        notifyIcon1.ShowBalloonTip(500, "Timer Paused", "Please Resume Your Current Session Before Changing Status", ToolTipIcon.Info);
                
-            }
+        //    }
 
-            else {
+        //    else {
 
-                //we need a check here to understand if the timer is actually running and if we need to write anything, or if we can just start the timer
-                if (stopwatchCheck == true)
-                {
-                    actualTimer.Stop();
-                    TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d") });
-                    actualTimer.Reset();
-                    statusChecktime.Stop();
-                    counter = 0;
-                }
+        //        //we need a check here to understand if the timer is actually running and if we need to write anything, or if we can just start the timer
+        //        if (stopwatchCheck == true)
+        //        {
+        //            actualTimer.Stop();
+        //            TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d") });
+        //            actualTimer.Reset();
+        //            statusChecktime.Stop();
+        //            counter = 0;
+        //        }
 
-                statusChecktime.Start();
-                actualTimer.Start();
-                statusName = "Post-Work";
-                notifyIcon1.ShowBalloonTip(500, "Status Change", "You are now in Post-Work status", ToolTipIcon.Info);
+        //        statusChecktime.Start();
+        //        actualTimer.Start();
+        //        statusName = "Post-Work";
+        //        notifyIcon1.ShowBalloonTip(500, "Status Change", "You are now in Post-Work status", ToolTipIcon.Info);
 
-            }
-        }
+        //    }
+        //}
 
 
 
@@ -260,7 +270,7 @@ namespace General_Desktop_Timer
                     if (stopwatchCheck == true)
                     {
                         actualTimer.Stop();
-                        TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d") });
+                        TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d"), hydraTask = HydratasktextBox.Text.ToString(), clientname=clientnametextBox3.Text.ToString(), publishdate=publishdatetextBox4.Text.ToString(), notes = notestextBox5.Text.ToString()});
                         actualTimer.Reset();
                         statusChecktime.Stop();
                         counter = 0;
@@ -288,10 +298,14 @@ namespace General_Desktop_Timer
             actualTimer.Stop();
             statusChecktime.Stop();
             counter = 0;
-            TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d") });
+            TimerData.Add(new agentTime() { agentStatus = statusName, agentID = agentName, statusTime = actualTimer.Elapsed.TotalSeconds, startTime = DateTime.Now, currentDate = DateTime.Today.ToString("d"), hydraTask = HydratasktextBox.Text.ToString(), clientname = clientnametextBox3.Text.ToString(), publishdate = publishdatetextBox4.Text.ToString(), notes=notestextBox5.Text.ToString() });
             notifyIcon1.ShowBalloonTip(500, "Status Change", "Timer Stopped", ToolTipIcon.Info);
             actualTimer.Reset();
-            label1.Text = "Timer Stopped";
+            displaycounter.Text = "Timer Stopped";
+            HydratasktextBox.Text = String.Empty;
+            clientnametextBox3.Text = String.Empty;
+            publishdatetextBox4.Text = String.Empty;
+            notestextBox5.Text = String.Empty;
         }
 
 
@@ -306,7 +320,7 @@ namespace General_Desktop_Timer
                 actualTimer.Stop();
                 statusChecktime.Stop();
                 pausedFlag = true;
-                button6.BackColor = Color.Red;
+                pausetimerbutton.BackColor = Color.Red;
             }
 
             else if(pausedFlag==true && stopwatchCheck==false)
@@ -315,7 +329,7 @@ namespace General_Desktop_Timer
                 actualTimer.Start();
                 statusChecktime.Start();
                 pausedFlag = false;
-                button6.BackColor = Color.Green;
+                pausetimerbutton.BackColor = Color.Green;
             }
 
             else
@@ -417,7 +431,7 @@ namespace General_Desktop_Timer
 
                 actualTimer.Start();
                 statusChecktime.Start();
-                statusName = "Post-Work";
+                statusName = StatusNamecomboBox1.SelectedItem.ToString() ;
                 notifyIcon1.ShowBalloonTip(500, "Status Change", "You are now in Post-Work status", ToolTipIcon.Info);
             }
         }
@@ -445,7 +459,7 @@ namespace General_Desktop_Timer
                 actualTimer.Stop();
                 statusChecktime.Stop();
                 pausedFlag = true;
-                button6.BackColor = Color.Red;
+                pausetimerbutton.BackColor = Color.Red;
             }
 
             else if (pausedFlag == true && stopwatchCheck == false)
@@ -453,7 +467,7 @@ namespace General_Desktop_Timer
                 actualTimer.Start();
                 statusChecktime.Start();
                 pausedFlag = false;
-                button6.BackColor = Color.Green;
+                pausetimerbutton.BackColor = Color.Green;
             }
 
             else
@@ -514,7 +528,7 @@ namespace General_Desktop_Timer
             var timespan = TimeSpan.FromSeconds(actualTimer.Elapsed.Seconds);
 
             //convert the time in seconds to the format requested by the user
-            label1.Text=("Elapsed Time in " + statusName+" "+ timespan.ToString(@"mm\:ss"));
+            displaycounter.Text=("Elapsed Time in " + statusName+" "+ timespan.ToString(@"mm\:ss"));
 
             //pull the thread into updating the UI
             Application.DoEvents();
@@ -527,6 +541,7 @@ namespace General_Desktop_Timer
         private void CreatingTimer()
         {
             statusChecktime = new Timer();
+
             statusChecktime.Tick += new EventHandler(statusTime_Tick);
             statusChecktime.Interval = 1000;
         }
@@ -560,6 +575,12 @@ namespace General_Desktop_Timer
         public string currentDate { get; set; }
 
         public string hydraTask { get;  set;}
+
+        public string clientname { get; set; }
+
+        public string publishdate { get; set; }
+
+        public string notes { get; set; }
     }
 }
 
