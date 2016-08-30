@@ -320,10 +320,11 @@
             this.Controls.Add(this.startmisctimerbutton);
             this.Controls.Add(this.startworktimerbutton);
             this.Font = new System.Drawing.Font("Century Gothic", 8.25F);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
-            this.Text = "Matt\'s Timer";
+            this.Text = "Pop Process Timer";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.frmMain_Resize);

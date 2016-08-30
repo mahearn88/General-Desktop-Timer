@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.VisualBasic;
-
+using System.Timers;
 
 namespace General_Desktop_Timer
 {
@@ -21,7 +21,7 @@ namespace General_Desktop_Timer
     public partial class Form1 : Form
     {
         //using class level variables so we can write them at any time when the application is closed
-        Timer statusChecktime;
+        System.Windows.Forms.Timer statusChecktime;
         string statusName;
         Stopwatch actualTimer = new Stopwatch();
         List<agentTime> TimerData = new List<agentTime>();
@@ -33,6 +33,8 @@ namespace General_Desktop_Timer
         private System.Windows.Forms.MenuItem menuItem1;
         bool pausedFlag;
         public int labelTime;
+        System.Windows.Forms.Timer statusChecktime2;
+        int counter2;
 
 
 
@@ -49,7 +51,7 @@ namespace General_Desktop_Timer
             notifyIcon1.DoubleClick += new System.EventHandler(this.notifyIcon1_DoubleClick);
 
             notifyIcon1.ContextMenu = this.contextMenu1;
-
+            
 
         }
 
@@ -57,6 +59,7 @@ namespace General_Desktop_Timer
         {
              //load the icon on the start so we can hit it with balloon tips throughout
             notifyIcon1.Visible = true;
+            statusChecktime2.Start();
         }
 
 
@@ -68,8 +71,8 @@ namespace General_Desktop_Timer
             {
                 //throw the icon to the system tray and trigger the balloon to let the user know the application is still running and accessible
                
-                notifyIcon1.ShowBalloonTip(500,"Important","The timer application is now running in the system tray. Double click the icon to return.",ToolTipIcon.Info);
-                this.Hide();
+                //notifyIcon1.ShowBalloonTip(500,"Important","The timer application is now running in the system tray. Double click the icon to return.",ToolTipIcon.Info);
+                //this.Hide();
             }
 
             //******************************From Ashy to Classy...This shouldn't be needed, but let's keep it just in case I screw something up**************************************
@@ -98,7 +101,7 @@ namespace General_Desktop_Timer
                     }
                     file.Close();
                     notifyIcon1.Icon = null;
-                    MessageBox.Show("The file for " + agentName + " has been written to your desktop.", "Application Closed");
+                    MessageBox.Show("The file for " + agentName + " has been written to G:\\Communicator Ops\\Population Health\\Pop Process\\Time Tracking\\User Data.", "Application Closed");
                 }
             }
             //if the file hasn't been created before we can drop the headers in for the columns
@@ -117,12 +120,6 @@ namespace General_Desktop_Timer
                 }
             }
         }
-
-
-
-
-
-
 
 
         //*****************************click and butten events below this line*********************************************************************
@@ -525,27 +522,48 @@ namespace General_Desktop_Timer
             //The timespan will handle the push from the elapsed time in seconds to the label so we can update the user
             //This shouldn't require a background worker since it's a fairly small app and nothing is resource heavy
 
-            var timespan = TimeSpan.FromSeconds(actualTimer.Elapsed.Seconds);
+            var timespan = TimeSpan.FromSeconds(actualTimer.Elapsed.TotalSeconds);
 
             //convert the time in seconds to the format requested by the user
-            displaycounter.Text=("Elapsed Time in " + statusName+" "+ timespan.ToString(@"mm\:ss"));
+            displaycounter.Text = ("Elapsed Time in " + statusName + " " + timespan.ToString(@"mm\:ss"));
 
             //pull the thread into updating the UI
             Application.DoEvents();
 
+            //cleanly divisable by 60 then execute next block of code
+            if (counter % 900 == 0)
+            {
+                notifyIcon1.ShowBalloonTip(500, "Alert!", "Your timer is still running timer, are you still working?", ToolTipIcon.Info);
 
-            
+            }
         }
+          private void statusTime_tick2(object sender, EventArgs e)
+        {
+            counter2++;
+            stopwatchCheck = actualTimer.IsRunning;
+
+            if (stopwatchCheck == false && counter2 % 900 == 0)
+            {
+                notifyIcon1.ShowBalloonTip(500, "Alert!", "Should you be timing something?", ToolTipIcon.Info);
+            }
+
+
+        }
+
 
         //generates the timer object that will be used to track the time in status
         private void CreatingTimer()
         {
-            statusChecktime = new Timer();
-
+            statusChecktime = new System.Windows.Forms.Timer();
             statusChecktime.Tick += new EventHandler(statusTime_Tick);
             statusChecktime.Interval = 1000;
+
+            statusChecktime2 = new System.Windows.Forms.Timer();
+            statusChecktime2.Tick += new EventHandler(statusTime_tick2);
+            statusChecktime2.Interval = 1000;
         }
 
+        
 
     }
 
